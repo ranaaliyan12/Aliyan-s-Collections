@@ -1,0 +1,147 @@
+<!doctype html>
+<html lang="ur" dir="rtl">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Aliyan Collection</title>
+  <style>
+    :root{--bg:#ffffff;--card:#ffffff;--accent:#000000;--muted:#6b7280}
+    body{font-family:system-ui,-apple-system,'Segoe UI',Roboto,'Noto Sans',"Helvetica Neue",Arial; background:var(--bg); margin:0; padding:20px}
+    .container{max-width:1000px;margin:0 auto}
+    header{display:flex;align-items:center;justify-content:space-between;margin-bottom:20px}
+    .brand{display:flex;gap:12px;align-items:center}
+    .logo{width:56px;height:56px;border-radius:8px;background:linear-gradient(135deg,var(--accent),#7ab0ff);display:flex;align-items:center;justify-content:center;color:#fff;font-weight:700}
+    h1{margin:0;font-size:20px}
+    .grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:16px}
+    .card{background:var(--card);padding:12px;border-radius:10px;box-shadow:0 6px 18px rgba(14,20,30,0.06);display:flex;flex-direction:column}
+    .card img{width:100%;height:160px;object-fit:cover;border-radius:8px}
+    .title{font-weight:600;margin:8px 0 4px}
+    .price{color:var(--accent);font-weight:700}
+    .btn{background:var(--accent);color:#fff;padding:8px 10px;border:none;border-radius:8px;cursor:pointer;margin-top:auto}
+    .footer{margin-top:20px;text-align:center;color:var(--muted)}
+    .modal-back{position:fixed;inset:0;background:rgba(0,0,0,0.35);display:none;align-items:center;justify-content:center}
+    .modal{background:var(--card);padding:18px;border-radius:10px;max-width:420px;width:92%}
+    label{display:block;font-size:13px;color:var(--muted);margin-top:8px}
+    input,textarea{width:100%;padding:8px;border-radius:6px;border:1px solid #e6e9ef;margin-top:6px}
+    .actions{display:flex;gap:8px;margin-top:12px}
+    .secondary{background:#f1f4f8;border:1px solid #e6e9ef;color:#111}
+    pre{background:#0f1724;color:#e6eef8;padding:10px;border-radius:6px;overflow:auto;font-size:13px}
+  </style>
+</head>
+<body>
+  <div class="container">
+    <header>
+      <div class="brand">
+        <div class="logo">A</div>
+        <div>
+          <h1>Aliyan Collection</h1>
+          <div style="color:var(--muted);font-size:13px">Online store for dropshipping with Markaz</div>
+        </div>
+      </div>
+      <div style="text-align:right">
+        <div style="font-size:13px;color:var(--muted)">Contact: 03306741411</div>
+      </div>
+    </header>
+
+    <main>
+      <section class="grid" id="products"></section>
+      <div class="footer">Taxes & shipping added at time of manual fulfillment.</div>
+    </main>
+  </div>
+
+  <div id="modalBack" class="modal-back">
+    <div class="modal" role="dialog" aria-modal="true">
+      <h3 id="modalTitle">Order</h3>
+      <div id="productSummary" style="margin-bottom:8px;color:var(--muted)"></div>
+
+      <label>Full Name</label>
+      <input id="name" placeholder="Apka naam" />
+
+      <label>Phone (for delivery)</label>
+      <input id="phone" placeholder="03xx-xxxxxxx" />
+
+      <label>Address</label>
+      <textarea id="address" rows="3" placeholder="City, Address, ZIP"></textarea>
+
+      <label>Notes (optional)</label>
+      <input id="notes" placeholder="Extra instructions" />
+
+      <div class="actions">
+        <button class="btn" id="confirmBtn">Confirm & Prepare Order</button>
+        <button class="secondary" id="cancelBtn">Cancel</button>
+      </div>
+
+      <div id="orderBlock" style="display:none;margin-top:12px">
+        <div style="font-weight:700;margin-bottom:6px">Order ready — Copy this and place on Markaz</div>
+        <pre id="orderText"></pre>
+        <div style="display:flex;gap:8px;margin-top:8px">
+          <button id="copyBtn" class="btn">Copy to clipboard</button>
+          <button id="closeBtn" class="secondary">Close</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+<script>
+const products = [
+  {id:1,title:'Smart Watch Series 8',price:3499,image:'https://via.placeholder.com/600x400?text=Smart+Watch'},
+  {id:2,title:'Luxury Perfume 50ml',price:1999,image:'https://via.placeholder.com/600x400?text=Perfume'},
+  {id:3,title:'Men Casual Shirt',price:1299,image:'https://via.placeholder.com/600x400?text=Shirt'},
+  {id:4,title:'Women Fashion Dress',price:2199,image:'https://via.placeholder.com/600x400?text=Dress'}
+];
+
+const prodContainer = document.getElementById('products');
+function render(){
+  prodContainer.innerHTML = '';
+  products.forEach(p=>{
+    const card = document.createElement('div'); card.className='card';
+    card.innerHTML = `
+      <img src="${p.image}" alt="${p.title}"/>
+      <div class="title">${p.title}</div>
+      <div style="font-size:13px;color:var(--muted)">Delivery: Markaz Seller</div>
+      <div class="price">Rs ${p.price}</div>
+      <button class="btn" onclick="openModal(${p.id})">Buy</button>
+    `;
+    prodContainer.appendChild(card);
+  })
+}
+render();
+
+const modalBack = document.getElementById('modalBack');
+const modalTitle = document.getElementById('modalTitle');
+const productSummary = document.getElementById('productSummary');
+let currentProd = null;
+
+function openModal(id){
+  currentProd = products.find(x=>x.id===id);
+  modalTitle.textContent = 'Order — ' + currentProd.title;
+  productSummary.textContent = `Price: Rs ${currentProd.price} \nNote: After you confirm, copy the order text and place the order manually in Markaz app.`;
+  document.getElementById('orderBlock').style.display='none';
+  modalBack.style.display = 'flex';
+}
+
+document.getElementById('cancelBtn').onclick = ()=> modalBack.style.display='none';
+document.getElementById('closeBtn').onclick = ()=> modalBack.style.display='none';
+
+document.getElementById('confirmBtn').onclick = ()=>{
+  const name = document.getElementById('name').value.trim();
+  const phone = document.getElementById('phone').value.trim();
+  const address = document.getElementById('address').value.trim();
+  const notes = document.getElementById('notes').value.trim();
+
+  if(!name||!phone||!address){
+    alert('Name, phone, aur address zaroori hain'); return;
+  }
+
+  const order = `Product: ${currentProd.title} \nPrice: Rs ${currentProd.price} \nName: ${name} \nPhone: ${phone} \nAddress: ${address} \nNotes: ${notes}\n\n-- Place this order inside Markaz app as customer shipping details.`;
+  document.getElementById('orderText').textContent = order;
+  document.getElementById('orderBlock').style.display='block';
+}
+
+document.getElementById('copyBtn').onclick = ()=>{
+  const t = document.getElementById('orderText').textContent;
+  navigator.clipboard.writeText(t).then(()=>{ alert('Copied! Ab Markaz app me paste kar dein.') });
+}
+</script>
+</body>
+</html>
